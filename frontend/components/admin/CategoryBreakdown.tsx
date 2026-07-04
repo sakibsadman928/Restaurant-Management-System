@@ -53,7 +53,7 @@ export default function CategoryBreakdown() {
                 <XAxis dataKey="_id" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
                 <Tooltip
-                  formatter={(value: number) => [formatPrice(value), 'Revenue']}
+                  formatter={(value) => value ? formatPrice(value as number) : value}
                   cursor={{ fill: 'hsl(var(--muted))' }}
                 />
                 <Bar dataKey="revenue" radius={[4, 4, 0, 0]}>
