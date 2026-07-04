@@ -41,10 +41,16 @@ export default function TableRevenueChart() {
                 <XAxis dataKey="tableNumber" tickFormatter={(v) => `T${v}`} tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
                 <Tooltip
-                  formatter={(value: number, name: string) => [
-                    name === 'revenue' ? formatPrice(value) : value,
-                    name === 'revenue' ? 'Revenue' : 'Orders',
-                  ]}
+                  formatter={(value, name) => {
+                    const formattedValue =
+                      name === 'revenue'
+                        ? formatPrice(typeof value === 'number' ? value : Number(value ?? 0))
+                        : value === undefined
+                        ? ''
+                        : String(value);
+
+                    return [formattedValue, name === 'revenue' ? 'Revenue' : 'Orders'] as [string, string];
+                  }}
                   labelFormatter={(label) => `Table ${label}`}
                   cursor={{ fill: 'hsl(var(--muted))' }}
                 />
