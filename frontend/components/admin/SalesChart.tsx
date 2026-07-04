@@ -1,15 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from "react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from 'recharts';
-import api from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { formatPrice } from '@/lib/utils';
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import api from "@/lib/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatPrice } from "@/lib/utils";
 
-type Period = 'daily' | 'weekly' | 'monthly';
+type Period = "daily" | "weekly" | "monthly";
 
 interface SalesPoint {
   label: string;
@@ -17,16 +23,29 @@ interface SalesPoint {
   orderCount: number;
 }
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 function formatLabel(id: any, period: Period): string {
-  if (period === 'daily') {
+  if (period === "daily") {
     // Split the 'YYYY-MM-DD' string directly — avoids UTC→local timezone offset
     // shifting the date by one day in timezones behind UTC
-    const parts = (id as string).split('-');
+    const parts = (id as string).split("-");
     return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
   }
-  if (period === 'weekly') {
+  if (period === "weekly") {
     // Include year so W1 is unambiguous when the chart spans a year boundary
     return `W${id.week} '${String(id.year).slice(-2)}`;
   }
@@ -34,14 +53,14 @@ function formatLabel(id: any, period: Period): string {
 }
 
 export default function SalesChart() {
-  const [period, setPeriod] = useState<Period>('daily');
+  const [period, setPeriod] = useState<Period>("daily");
   const [points, setPoints] = useState<SalesPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
     api
-      .get('/admin/reports/sales', { params: { period } })
+      .get("/admin/reports/sales", { params: { period } })
       .then(({ data }) => {
         const mapped = data.data.data.map((d: any) => ({
           label: formatLabel(d._id, period),
@@ -55,12 +74,12 @@ export default function SalesChart() {
 
   const totalRevenue = useMemo(
     () => points.reduce((sum, p) => sum + p.revenue, 0),
-    [points]
+    [points],
   );
 
   const totalOrders = useMemo(
     () => points.reduce((sum, p) => sum + p.orderCount, 0),
-    [points]
+    [points],
   );
 
   return (
@@ -93,7 +112,11 @@ export default function SalesChart() {
         ) : (
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={points}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                className="stroke-muted"
+              />
               <XAxis
                 dataKey="label"
                 tick={{ fontSize: 12 }}
@@ -107,16 +130,23 @@ export default function SalesChart() {
                 tickFormatter={(v) => `$${v}`}
               />
               <Tooltip
-                formatter={(value: number) => [formatPrice(value), 'Revenue']}
+                formatter={(value: any) => [
+                  formatPrice(value as number),
+                  "Revenue",
+                ]}
                 labelFormatter={(label) => {
                   const point = points.find((p) => p.label === label);
                   return point
-                    ? `${label}  ·  ${point.orderCount} order${point.orderCount !== 1 ? 's' : ''}`
+                    ? `${label}  ·  ${point.orderCount} order${point.orderCount !== 1 ? "s" : ""}`
                     : label;
                 }}
-                cursor={{ fill: 'hsl(var(--muted))' }}
+                cursor={{ fill: "hsl(var(--muted))" }}
               />
-              <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey="revenue"
+                fill="hsl(var(--primary))"
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         )}
